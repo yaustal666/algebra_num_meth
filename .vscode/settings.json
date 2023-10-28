@@ -1,0 +1,8 @@
+{
+    "editor.formatOnSave": true,
+    "files.associations": {
+        "iostream": "cpp",
+        "fstream": "cpp",
+        "*.tcc": "cpp"
+    }
+}

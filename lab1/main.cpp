@@ -6,7 +6,7 @@
 
 int main() {
   //   // generate matrixes
-  system("python3 lab.py");
+  // system("python3 lab.py");
   int melemcnt = 16;
   int msize = 4;
 
@@ -23,11 +23,11 @@ int main() {
     vc1.push_back(a);
   }
 
-  for (int i = 0; i < melemcnt; i++) {
-    double a;
-    fin >> a;
-    vc2.push_back(a);
-  }
+  // for (int i = 0; i < melemcnt; i++) {
+  //   double a;
+  //   fin >> a;
+  //   vc2.push_back(a);
+  // }
 
   //   for (int i = 0; i < 625; i++) {
   //     double a;
@@ -68,19 +68,24 @@ int main() {
   //   fout << "Norm 5 = " << n5 << "\n";
 
   Matrix m1(vc1, msize);
-  Matrix m2(vc2, msize);
+  // Matrix m2(vc2, msize);
 
-  std::pair<Matrix, Matrix> lu = m1.LU();
+  // std::pair<Matrix, Matrix> lu = m1.LU();
 
   m1.show();
   std::cout << "\n\n";
+  vc_dbl vk;
+  vk.push_back(4);
+  vk.push_back(44);
+  vk.push_back(30);
+  vk.push_back(8);
 
-  Matrix m3 = lu.first * lu.second;
-  lu.first.show();
-  std::cout << "\n\n";
-  lu.second.show();
+  vc_dbl vc = m1.SolveU(vk);
 
-  std::cout << "\n\n";
+  std::cout << m1.det_ << " ";
+  std::cout << std::endl;
 
-  m3.show();
+  for (auto i : vc) {
+    std::cout << i << " ";
+  }
 }

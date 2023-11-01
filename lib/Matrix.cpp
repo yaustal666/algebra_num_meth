@@ -106,6 +106,20 @@ Matrix Matrix::operator*(const Matrix& other) {
   return res;
 }
 
+vc_dbl Matrix::operator*(const vc_dbl& other) {
+  vc_dbl res;
+
+  for (int i = 0; i < size_; i++) {
+    double tmp = 0;
+    for (int j = 0; j < size_; j++) {
+      tmp += data_[i][j] * other[j];
+    }
+    res.push_back(tmp);
+  }
+
+  return res;
+}
+
 bool Matrix::operator==(const Matrix& other) const {
   if (size_ != other.size_) return false;
 

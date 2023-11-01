@@ -49,6 +49,7 @@ class Matrix {
   Matrix operator+(const Matrix&);
   Matrix operator-(const Matrix&);
   Matrix operator*(const Matrix&);
+  vc_dbl operator*(const vc_dbl&);
 
   Matrix operator+(double);
   Matrix operator-(double);
@@ -66,6 +67,6 @@ class Matrix {
   void show();
   bool IsDegenerate();
 
- private:
+ public:
   bool CheckIFDegenerateAndAddLU();
 };

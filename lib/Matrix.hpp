@@ -41,9 +41,10 @@ class Matrix {
 
   double Norm();
   double Det();
-  void Transponate();
+  Matrix Transponate() const;
 
   std::pair<Matrix, Matrix> LUFactorization();
+  Matrix KholetskiyFactorization();
 
   Matrix operator-() const;
   Matrix operator+(const Matrix&);
@@ -58,9 +59,10 @@ class Matrix {
   bool operator==(const Matrix&) const;
   bool operator!=(const Matrix&) const;
 
-  vc_dbl SolveL(const vc_dbl&);
-  vc_dbl SolveU(const vc_dbl&);
-  vc_dbl SolveSystem(const vc_dbl&);
+  vc_dbl SolveL(const vc_dbl&, const mtrx&);
+  vc_dbl SolveU(const vc_dbl&, const mtrx&);
+  vc_dbl SolveSystemViaLU(const vc_dbl&);
+  vc_dbl SolveSystemViaKholetskiy(const vc_dbl&, const Matrix&);
 
   Matrix InvertibleMatrix();
 

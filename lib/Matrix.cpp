@@ -210,14 +210,17 @@ double Matrix::Det() {
   return res;
 }
 
-void Matrix::Transponate() {
+Matrix Matrix::Transponate() const {
+  Matrix copy(*this);
   for (int i = 0; i < size_; i++) {
     for (int j = i; j < size_; j++) {
-      double t = data_[i][j];
-      data_[i][j] = data_[j][i];
-      data_[j][i] = t;
+      double t = copy.data_[i][j];
+      copy.data_[i][j] = copy.data_[j][i];
+      copy.data_[j][i] = t;
     }
   }
+
+  return copy;
 }
 
 Matrix Matrix::InvertibleMatrix() {
@@ -225,7 +228,7 @@ Matrix Matrix::InvertibleMatrix() {
 
   mtrx res_data;
   for (int i = 0; i < size_; i++) {
-    vc_dbl tmp = this->SolveSystem(idm.data_[i]);
+    vc_dbl tmp = this->SolveSystemViaLU(idm.data_[i]);
     res_data.push_back(tmp);
   }
 
@@ -279,36 +282,68 @@ std::pair<Matrix, Matrix> Matrix::LUFactorization() {
   return std::make_pair(L, U);
 }
 
+Matrix Matrix::KholetskiyFactorization() {
+  Matrix U(size_);
+  U.data_[0][0] = sqrt(data_[0][0]);
+
+  for (int j = 1; j < size_; j++) {
+    U.data_[0][j] = data_[0][j] / U.data_[0][0];
+  }
+
+  for (int i = 1; i < size_; i++) {
+    for (int j = 1; j < size_; j++) {
+      if (i == j) {
+        double tmp1 = 0;
+        for (int k = 0; k < i; k++) {
+          tmp1 += U.data_[k][i] * U.data_[k][i];
+        }
+
+        U.data_[i][i] = sqrt(data_[i][i] - tmp1);
+      }
+
+      if (i < j) {
+        double tmp2 = 0;
+        for (int k = 0; k < i; k++) {
+          tmp2 += U.data_[k][i] * U.data_[k][j];
+        }
+
+        U.data_[i][j] = (data_[i][j] - tmp2) / U.data_[i][i];
+      }
+    }
+  }
+
+  return U;
+}
 // --------------solve_equasion_with_LU------------------
-vc_dbl Matrix::SolveL(const vc_dbl& free_vc) {
+vc_dbl Matrix::SolveL(const vc_dbl& free_vc, const mtrx& lower) {
   vc_dbl res;
-  res.push_back(free_vc[0] / lu_.l_[0][0]);
+  res.push_back(free_vc[0] / lower[0][0]);
 
   for (int i = 1; i < size_; i++) {
     double tmp = free_vc[i];
     for (int j = 0; j < i; j++) {
-      tmp -= res[j] * lu_.l_[i][j];
+      tmp -= res[j] * lower[i][j];
     }
 
-    tmp /= lu_.l_[i][i];
+    tmp /= lower[i][i];
     res.push_back(tmp);
   }
 
   return res;
 }
 
-vc_dbl Matrix::SolveU(const vc_dbl& free_vc) {
+vc_dbl Matrix::SolveU(const vc_dbl& free_vc, const mtrx& upper) {
   vc_dbl res;
   int last = size_ - 1;
-  res.push_back(free_vc[last] / lu_.u_[last][last]);
+  res.push_back(free_vc[last] / upper[last][last]);
 
   for (int i = last - 1; i >= 0; i--) {
     double tmp = free_vc[i];
     for (int j = last; j > i; j--) {
-      tmp -= res[last - j] * lu_.u_[i][j];
+      tmp -= res[last - j] * upper[i][j];
     }
 
-    tmp /= lu_.u_[i][i];
+    tmp /= upper[i][i];
 
     res.push_back(tmp);
   }
@@ -317,10 +352,21 @@ vc_dbl Matrix::SolveU(const vc_dbl& free_vc) {
   return res;
 }
 
-vc_dbl Matrix::SolveSystem(const vc_dbl& free_vc) {
-  vc_dbl tmp = this->SolveL(free_vc);
+vc_dbl Matrix::SolveSystemViaLU(const vc_dbl& free_vc) {
+  vc_dbl tmp = this->SolveL(free_vc, lu_.l_);
 
-  vc_dbl res = this->SolveU(tmp);
+  vc_dbl res = this->SolveU(tmp, lu_.u_);
+
+  return res;
+}
+
+vc_dbl Matrix::SolveSystemViaKholetskiy(const vc_dbl& free_vc,
+                                        const Matrix& u) {
+  Matrix ut = u.Transponate();
+
+  vc_dbl tmp = this->SolveL(free_vc, ut.data_);
+
+  vc_dbl res = this->SolveU(tmp, u.data_);
 
   return res;
 }

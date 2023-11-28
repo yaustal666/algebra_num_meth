@@ -1,1 +1,0 @@
-clang++ test.cpp -o test -lgtest -pthread
